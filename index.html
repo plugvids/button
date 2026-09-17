@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Smart</title>
+
+<style>
+
+/* ============================= */
+/* POPUP CONTAINER                */
+/* ============================= */
+
+#myPopup {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 15px;
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+
+/* ============================= */
+/* BACKGROUND VIDEO               */
+/* ============================= */
+
+#backgroundVideo {
+    position: absolute;
+
+    top: -15px;
+    left: -15px;
+
+    width: calc(100% + 30px);
+    height: calc(100% + 30px);
+
+    object-fit: cover;
+
+    filter: blur(8px);
+
+    z-index: -2;
+
+    pointer-events: none;
+}
+
+
+/* ============================= */
+/* DARK OVERLAY                   */
+/* ============================= */
+
+#myPopup::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.35);
+
+    z-index: -1;
+
+    pointer-events: none;
+}
+
+
+/* ============================= */
+/* POPUP BOX                      */
+/* ============================= */
+
+.popup-box {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    max-width: 600px;
+
+    padding: 30px 20px;
+
+    text-align: center;
+    color: #fff;
+
+    background: rgba(0, 0, 0, 0.85);
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+
+    box-sizing: border-box;
+}
+
+
+/* ============================= */
+/* TEXT                           */
+/* ============================= */
+
+.popup-text {
+    font-size: 16px;
+    line-height: 1.5;
+
+    margin-bottom: 22px;
+}
+
+
+/* ============================= */
+/* BUTTON                         */
+/* ============================= */
+
+.popup-button {
+    display: inline-block;
+
+    padding: 13px 35px;
+
+    background: #036bb7;
+    color: #fff !important;
+
+    border: 2px solid #fff;
+    border-radius: 4px;
+
+    text-decoration: none !important;
+
+    font-weight: bold;
+    cursor: pointer;
+
+    box-sizing: border-box;
+}
+
+.popup-button:hover {
+    opacity: 0.9;
+}
+
+
+/* ============================= */
+/* MOBILE                        */
+/* ============================= */
+
+@media (max-width: 600px) {
+
+    #myPopup {
+        padding: 12px;
+    }
+
+    #backgroundVideo {
+        top: -15px;
+        left: -15px;
+
+        width: calc(100% + 30px);
+        height: calc(100% + 30px);
+
+        filter: blur(8px);
+    }
+
+    .popup-box {
+        max-width: 380px;
+
+        padding: 25px 18px;
+    }
+
+    .popup-text {
+        font-size: 14px;
+    }
+
+    .popup-button {
+        width: 100%;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+
+<!-- ============================= -->
+<!-- POPUP                         -->
+<!-- ============================= -->
+
+<div id="myPopup">
+
+
+    <!-- BACKGROUND VIDEO -->
+
+    <video
+        id="backgroundVideo"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto">
+
+        <source
+            src="https://cdn.videy.co/OlXPByii1.mp4"
+            type="video/mp4">
+
+    </video>
+
+
+    <!-- POPUP BOX -->
+
+    <div class="popup-box">
+
+        <div class="popup-text">
+            <strong>Press Continue to access the video.</strong>
+        </div>
+
+        <a
+            href="https://plugvids.github.io/baddies/?usa"
+            class="popup-button"
+            id="continueButton">
+
+            Continue
+
+        </a>
+        
+
+    </div>
+
+</div>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    /* ============================= */
+    /* ELEMENTS                      */
+    /* ============================= */
+
+    var popup =
+        document.getElementById("myPopup");
+
+    var button =
+        document.getElementById("continueButton");
+
+    var video =
+        document.getElementById("backgroundVideo");
+
+
+    if (!popup || !button) {
+        return;
+    }
+
+
+    /* ============================= */
+    /* SETTINGS                      */
+    /* ============================= */
+
+    var STORAGE_KEY =
+        "my_popup_next_time";
+
+    /* 5 menit */
+
+    var FIVE_MINUTES =
+        5 * 60 * 1000;
+
+
+    /* ============================= */
+    /* VIDEO                         */
+    /* ============================= */
+
+    if (video) {
+
+        video.muted = true;
+
+        video.setAttribute(
+            "playsinline",
+            ""
+        );
+
+        var playPromise =
+            video.play();
+
+        if (
+            playPromise !== undefined
+        ) {
+
+            playPromise.catch(
+                function () {
+
+                    /* Browser memblokir autoplay */
+
+                }
+            );
+
+        }
+
+    }
+
+
+    /* ============================= */
+    /* CHECK POPUP                   */
+    /* ============================= */
+
+    function checkPopup() {
+
+        var savedTime =
+            localStorage.getItem(
+                STORAGE_KEY
+            );
+
+        var currentTime =
+            Date.now();
+
+
+        /* Belum pernah klik */
+
+        if (!savedTime) {
+
+            popup.style.display =
+                "flex";
+
+            return;
+
+        }
+
+
+        /* 5 menit sudah lewat */
+
+        if (
+            currentTime >=
+            parseInt(savedTime, 10)
+        ) {
+
+            localStorage.removeItem(
+                STORAGE_KEY
+            );
+
+            popup.style.display =
+                "flex";
+
+        }
+
+        else {
+
+            popup.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    /* ============================= */
+    /* CONTINUE                     */
+    /* ============================= */
+
+    button.addEventListener(
+        "click",
+        function () {
+
+
+            /* Simpan waktu 5 menit */
+
+            var nextTime =
+                Date.now() +
+                FIVE_MINUTES;
+
+
+            localStorage.setItem(
+                STORAGE_KEY,
+                nextTime.toString()
+            );
+
+
+            /* Sembunyikan popup */
+
+            popup.style.display =
+                "none";
+
+
+            /* Hentikan video */
+
+            if (video) {
+
+                video.pause();
+
+            }
+
+
+            /* Jalankan link */
+
+            window.location.href =
+                button.href;
+
+        }
+    );
+
+
+    /* ============================= */
+    /* START                         */
+    /* ============================= */
+
+    checkPopup();
+
+
+})();
+</script>
+
+</body>
+</html>
